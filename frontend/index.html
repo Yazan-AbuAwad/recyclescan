@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecycleScan • AI Recycling Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-recycle"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>RecycleScan</h1>
+                    <p class="tagline">See • Scan • Sort</p>
+                </div>
+            </div>
+            <div class="api-status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Camera/Upload -->
+            <div class="left-panel">
+                <div class="card">
+                    <h2><i class="fas fa-camera"></i> Scan Waste Item</h2>
+                    
+                    <!-- Camera Preview -->
+                    <div class="camera-preview" id="camera-preview">
+                        <video id="camera-view" autoplay playsinline></video>
+                        <div class="camera-overlay">
+                            <div class="scanning-frame"></div>
+                            <button class="shutter-btn" id="shutter-btn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="camera-controls">
+                        <button class="btn btn-secondary" id="switch-camera">
+                            <i class="fas fa-camera-retro"></i> Switch Camera
+                        </button>
+                        <button class="btn btn-secondary" id="toggle-flash">
+                            <i class="fas fa-bolt"></i> Flash: Off
+                        </button>
+                    </div>
+                    
+                    <!-- Upload Section -->
+                    <div class="upload-section">
+                        <h3><i class="fas fa-cloud-upload-alt"></i> Or Upload Image</h3>
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-file-upload"></i>
+                            <p>Drag & drop or click to upload</p>
+                            <input type="file" id="file-input" accept="image/*" hidden>
+                            <button class="btn btn-outline" id="upload-btn">
+                                <i class="fas fa-folder-open"></i> Browse Files
+                            </button>
+                        </div>
+                        <div class="url-upload">
+                            <input type="text" id="image-url" placeholder="Or paste image URL...">
+                            <button class="btn btn-outline" id="url-submit">
+                                <i class="fas fa-link"></i> Submit
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Scans -->
+                    <div class="recent-scans">
+                        <h3><i class="fas fa-history"></i> Recent Scans</h3>
+                        <div id="recent-scans-list">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="right-panel">
+                <div class="card">
+                    <h2><i class="fas fa-search"></i> Scan Results</h2>
+                    
+                    <!-- Results Display -->
+                    <div id="results-container">
+                        <div class="welcome-message">
+                            <div class="welcome-icon">
+                                <i class="fas fa-recycle"></i>
+                            </div>
+                            <h3>Ready to Scan!</h3>
+                            <p>Take a photo or upload an image of a waste item, and our AI will tell you exactly where it belongs.</p>
+                            <div class="signs-preview">
+                                <div class="sign-preview paper">
+                                    <div class="sign-icon">📄</div>
+                                    <span>Paper</span>
+                                </div>
+                                <div class="sign-preview plastic">
+                                    <div class="sign-icon">♻️</div>
+                                    <span>Plastic & Metals</span>
+                                </div>
+                                <div class="sign-preview landfill">
+                                    <div class="sign-icon">🗑️</div>
+                                    <span>Landfill</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recycling Guide -->
+                <div class="card">
+                    <h2><i class="fas fa-info-circle"></i> Recycling Guide</h2>
+                    <div class="guide-grid">
+                        <div class="guide-item paper">
+                            <h4><i class="fas fa-newspaper"></i> Paper</h4>
+                            <ul>
+                                <li>Newspapers & magazines</li>
+                                <li>Cardboard boxes</li>
+                                <li>Office paper</li>
+                                <li>Paper packaging</li>
+                            </ul>
+                        </div>
+                        <div class="guide-item plastic">
+                            <h4><i class="fas fa-wine-bottle"></i> Plastic & Metals</h4>
+                            <ul>
+                                <li>Plastic bottles</li>
+                                <li>Metal cans</li>
+                                <li>Food containers</li>
+                                <li>Aluminum foil</li>
+                            </ul>
+                        </div>
+                        <div class="guide-item landfill">
+                            <h4><i class="fas fa-trash-alt"></i> Landfill</h4>
+                            <ul>
+                                <li>Food waste</li>
+                                <li>Broken glass</li>
+                                <li>Styrofoam</li>
+                                <li>Mixed materials</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sign Modal (will pop up) -->
+        <div class="modal-overlay" id="sign-modal">
+            <div class="modal-content">
+                <button class="modal-close" id="modal-close">&times;</button>
+                <div class="modal-header">
+                    <h2 id="modal-title">Look for this Sign!</h2>
+                    <p id="modal-subtitle">Place your item in the correct bin</p>
+                </div>
+                <div class="modal-body">
+                    <div class="sign-display" id="sign-display">
+                        <!-- Sign image will be inserted here -->
+                    </div>
+                    <div class="sign-info">
+                        <h3 id="sign-category">Paper Recycling</h3>
+                        <p id="sign-description">Place in BLUE BIN</p>
+                        <div class="confidence-meter">
+                            <div class="confidence-label">AI Confidence:</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidence-fill"></div>
+                            </div>
+                            <span class="confidence-value" id="confidence-value">95%</span>
+                        </div>
+                        <div class="examples">
+                            <h4>Examples:</h4>
+                            <ul id="examples-list">
+                                <li>Newspapers</li>
+                                <li>Cardboard</li>
+                                <li>Office Paper</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="modal-scan-again">
+                        <i class="fas fa-redo"></i> Scan Another Item
+                    </button>
+                    <button class="btn btn-primary" id="modal-learn-more">
+                        <i class="fas fa-book"></i> Learn More
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add this modal for scan management -->
+<div class="modal-overlay" id="scans-modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <button class="modal-close" id="scans-modal-close">&times;</button>
+        <div class="modal-header">
+            <h2><i class="fas fa-history"></i> Scan History</h2>
+            <p>Manage your recent scans on this device</p>
+        </div>
+        <div class="modal-body">
+            <div class="scan-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-scans">0</div>
+                    <div class="stat-label">Total Scans</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="paper-scans">0</div>
+                    <div class="stat-label">Paper</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="plastic-scans">0</div>
+                    <div class="stat-label">Plastic</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="landfill-scans">0</div>
+                    <div class="stat-label">Landfill</div>
+                </div>
+            </div>
+            
+            <div class="scan-actions">
+                <button class="btn btn-secondary" id="export-scans">
+                    <i class="fas fa-download"></i> Export History
+                </button>
+                <button class="btn btn-secondary" id="import-scans">
+                    <i class="fas fa-upload"></i> Import History
+                </button>
+                <button class="btn btn-danger" id="clear-all-scans">
+                    <i class="fas fa-trash-alt"></i> Clear All
+                </button>
+            </div>
+            
+            <div class="full-history" id="full-history-list">
+                <!-- Full history will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add import file input -->
+<input type="file" id="import-file" accept=".json" hidden>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>RecycleScan • Making recycling simple and accurate • Powered by AI</p>
+            <p class="footer-note">
+                <i class="fas fa-server"></i> Backend API: <span id="api-url">http://localhost:8000</span>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
