@@ -17,7 +17,7 @@
 
 ## 📋 Overview
 
-**RecycleScan** transforms how people interact with recycling through elegant machine learning. By simply pointing a camera at any waste item, the system instantly identifies whether it belongs in **Paper**, **Plastic & Metals**, or **Landfill**—displaying the correct recycling sign with Apple-inspired clarity.
+**RecycleScan** transforms how people interact with recycling through elegant machine learning. By simply pointing a camera at any waste item, the system instantly identifies whether it belongs in **Paper**, **Plastic & Metals**, or **Landfill**—displaying the correct recycling sign.
 
 ---
 
